@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
-import { LayoutDashboard, Book, Users, ShoppingCart, Settings } from 'lucide-react';
+import { LayoutDashboard, Book, Users, ShoppingCart, Settings, Home } from 'lucide-react';
 
 const AdminLayout: React.FC = () => {
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -13,7 +13,12 @@ const AdminLayout: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-leather-900 flex">
       <aside className="w-64 bg-white dark:bg-leather-800 shadow-lg p-4 flex-col hidden lg:flex">
-        <div className="text-2xl font-bold text-crimson-900 dark:text-gold-500 mb-8 p-4">Admin Panel</div>
+        <div className="text-2xl font-bold text-crimson-900 dark:text-gold-500 mb-8 p-4">
+          <NavLink to="/" className="flex items-center gap-2 hover:text-crimson-700 dark:hover:text-gold-400 transition-colors">
+            <Home size={24} />
+            Kotobcom
+          </NavLink>
+        </div>
         <nav className="flex flex-col space-y-2">
           <NavLink to="/admin/dashboard" className={navLinkClass}>
             <LayoutDashboard size={20} />

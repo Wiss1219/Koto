@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Book, Users, DollarSign, Loader } from 'lucide-react';
+import { Book, Users, DollarSign, Loader, Package } from 'lucide-react';
 import { supabase } from '../../lib/supabaseClient';
 
 const StatCard = ({ icon, title, value, color, loading }: { icon: React.ReactNode, title: string, value: string | number, color: string, loading: boolean }) => (
@@ -16,7 +16,7 @@ const StatCard = ({ icon, title, value, color, loading }: { icon: React.ReactNod
 );
 
 const AdminDashboardPage: React.FC = () => {
-  const [stats, setStats] = useState({ books: 0, users: 0 });
+  const [stats, setStats] = useState({ books: 0, users: 0, orders: 0, revenue: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +24,22 @@ const AdminDashboardPage: React.FC = () => {
       setLoading(true);
       const { count: bookCount } = await supabase.from('books').select('*', { count: 'exact', head: true });
       const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
-      setStats({ books: bookCount || 0, users: userCount || 0 });
+      const { count: orderCount } = await supabase.from('orders').select('*', { count: 'exact', head: true });
+      
+      // Calculate total revenue
+      const { data: revenueData } = await supabase
+        .from('orders')
+        .select('total')
+        .eq('status', 'delivered');
+      
+      const totalRevenue = revenueData?.reduce((sum, order) => sum + parseFloat(order.total), 0) || 0;
+      
+      setStats({ 
+        books: bookCount || 0, 
+        users: userCount || 0, 
+        orders: orderCount || 0,
+        revenue: totalRevenue
+      });
       setLoading(false);
     };
     fetchStats();
@@ -33,7 +48,7 @@ const AdminDashboardPage: React.FC = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
       <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard 
           icon={<Book size={24} className="text-white" />} 
           title="Total Books" 
@@ -49,11 +64,18 @@ const AdminDashboardPage: React.FC = () => {
           loading={loading}
         />
         <StatCard 
+          icon={<Package size={24} className="text-white" />} 
+          title="Total Orders" 
+          value={stats.orders} 
+          color="bg-purple-500"
+          loading={loading}
+        />
+        <StatCard 
           icon={<DollarSign size={24} className="text-white" />} 
           title="Total Revenue" 
-          value="$0" 
+          value={`$${stats.revenue.toFixed(2)}`} 
           color="bg-yellow-500"
-          loading={true}
+          loading={loading}
         />
       </div>
       <div className="mt-10 bg-white dark:bg-leather-800 p-8 rounded-lg shadow-md">

@@ -24,6 +24,8 @@ import AdminLayout from './pages/admin/AdminLayout';
 import AdminDashboardPage from './pages/admin/AdminDashboardPage';
 import AdminBooksPage from './pages/admin/AdminBooksPage';
 import AdminBookFormPage from './pages/admin/AdminBookFormPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminOrdersPage from './pages/admin/AdminOrdersPage';
 
 function App() {
   return (
@@ -58,6 +60,8 @@ function App() {
           <Route path="books" element={<AdminBooksPage />} />
           <Route path="books/new" element={<AdminBookFormPage />} />
           <Route path="books/edit/:id" element={<AdminBookFormPage />} />
+          <Route path="users" element={<AdminUsersPage />} />
+          <Route path="orders" element={<AdminOrdersPage />} />
         </Route>
 
         {/* 404 */}

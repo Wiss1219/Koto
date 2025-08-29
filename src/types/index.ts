@@ -40,29 +40,42 @@ export interface CartItem {
 
 export interface User {
   id: string;
-  name: string;
+  full_name: string;
   email: string;
   role: 'user' | 'admin';
-  orders: Order[];
-  wishlist: string[];
+  created_at?: string;
 }
 
 export interface Order {
   id: string;
-  userId: string;
+  user_id: string;
+  user?: User;
   items: CartItem[];
   total: number;
   status: 'pending' | 'processing' | 'shipped' | 'delivered';
-  date: string;
-  shippingAddress: Address;
+  created_at: string;
+  updated_at: string;
+  shipping_address: Address;
+}
+
+export interface OrderItem {
+  id: string;
+  order_id: string;
+  book_id: string;
+  book?: Book;
+  quantity: number;
+  price: number;
+  created_at: string;
 }
 
 export interface Address {
-  street: string;
+  fullName: string;
+  address: string;
   city: string;
-  state: string;
   zipCode: string;
   country: string;
+  email: string;
+  phone: string;
 }
 
 export type Language = 'en' | 'ar' | 'fr';

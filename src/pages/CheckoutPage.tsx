@@ -2,10 +2,14 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
+import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { CreditCard, Lock } from 'lucide-react';
+import { supabase } from '../lib/supabaseClient';
+import toast from 'react-hot-toast';
 
 const shippingSchema = yup.object().shape({
   fullName: yup.string().required('Full name is required'),
@@ -19,16 +23,57 @@ const shippingSchema = yup.object().shape({
 
 const CheckoutPage: React.FC = () => {
   const { state, clearCart } = useCart();
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const { t } = useTranslation();
   const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: yupResolver(shippingSchema)
   });
 
-  const onSubmit = (data: any) => {
-    console.log('Order placed:', { shipping: data, items: state.items, total: state.total });
-    alert('Order placed successfully! (This is a mock action)');
-    clearCart();
-    // Redirect to a confirmation page in a real app
+  const onSubmit = async (data: any) => {
+    if (!user) {
+      toast.error('You must be logged in to place an order.');
+      return;
+    }
+
+    const toastId = toast.loading('Placing your order...');
+
+    try {
+      // Create the order
+      const { data: orderData, error: orderError } = await supabase
+        .from('orders')
+        .insert([{
+          user_id: user.id,
+          total: state.total,
+          status: 'pending',
+          shipping_address: data
+        }])
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      // Create order items
+      const orderItems = state.items.map(item => ({
+        order_id: orderData.id,
+        book_id: item.book.id,
+        quantity: item.quantity,
+        price: item.book.price
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      toast.success('Order placed successfully!', { id: toastId });
+      clearCart();
+      navigate('/account/orders');
+    } catch (error) {
+      console.error('Error placing order:', error);
+      toast.error('Failed to place order. Please try again.', { id: toastId });
+    }
   };
 
   return (
