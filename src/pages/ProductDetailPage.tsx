@@ -102,9 +102,9 @@ const ProductDetailPage: React.FC = () => {
               </p>
               <div className="flex items-center mb-6">
                 <div className="flex items-center">
-                  {[...Array(5)].map((_, i) => <Star key={i} size={20} className={i < Math.floor(book.rating) ? 'text-gold-500 fill-current' : 'text-gray-300 dark:text-gray-600'} />)}
+                  {[...Array(5)].map((_, i) => <Star key={i} size={20} className={i < Math.floor(book.rating || 0) ? 'text-gold-500 fill-current' : 'text-gray-300 dark:text-gray-600'} />)}
                 </div>
-                <span className="text-gray-600 dark:text-gray-400 text-sm ml-2">({book.rating.toFixed(1)} - {book.reviews?.length || 0} {t('common.reviews')})</span>
+                <span className="text-gray-600 dark:text-gray-400 text-sm ml-2">({(book.rating || 0).toFixed(1)} - {book.reviews?.length || 0} {t('common.reviews')})</span>
               </div>
               <div className="text-4xl font-bold text-crimson-900 dark:text-gold-500 mb-6">${book.price.toFixed(2)}</div>
               <div className="mb-6 flex items-center gap-4">
